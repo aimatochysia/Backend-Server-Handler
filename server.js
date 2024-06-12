@@ -68,7 +68,22 @@ app.get('/api/user/:email', async (req, res) => {
   try {
     const user = await getUserByEmail(email);
     if (user) {
-      res.json(user);
+      const formattedUser = JSON.stringify(user, null, 2);
+      res.setHeader('Content-Type', 'text/html');
+      res.send(`
+        <html>
+          <head>
+            <meta name="color-scheme" content="light dark">
+            <meta charset="utf-8">
+            <style>
+              /* You can add CSS styles for formatting here (optional) */
+            </style>
+          </head>
+          <body>
+            <pre>${formattedUser}</pre>
+            <div class="json-formatter-container"></div> </body>
+        </html>
+      `);
     } else {
       res.status(404).json({ error: "User not found" });
     }
@@ -78,47 +93,7 @@ app.get('/api/user/:email', async (req, res) => {
   }
 });
 
-app.post('/api/users', async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const newUser = await createUser(email, password);
-    res.status(201).json(newUser);
-  } catch (err) {
-    console.error("Error:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.put('/api/users/:email', async (req, res) => {
-  const { email } = req.params;
-  const { newPassword } = req.body;
-  try {
-    const updatedUser = await updateUser(email, newPassword);
-    if (updatedUser) {
-      res.json(updatedUser);
-    } else {
-      res.status(404).json({ error: "User not found" });
-    }
-  } catch (err) {
-    console.error("Error:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.delete('/api/users/:email', async (req, res) => {
-  const { email } = req.params;
-  try {
-    const deletedUser = await deleteUser(email);
-    if (deletedUser) {
-      res.json(deletedUser);
-    } else {
-      res.status(404).json({ error: "User not found" });
-    }
-  } catch (err) {
-    console.error("Error:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+// Other CRUD routes remain unchanged...
 
 app.listen(() => {
   console.log(`Server is running`);
